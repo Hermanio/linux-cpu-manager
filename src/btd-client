@@ -26,7 +26,8 @@ if __name__ == "__main__":
                         type=str, nargs='?', default='normal')
     args = parser.parse_args()
     if args.mode in CONTROLLER_MODES:
-        cpu_manager.set_mode(args.mode)
+        out = cpu_manager.set_mode(args.mode)
+        print(out)
     else:
         # print("Invalid argument ", args.action)
         parser.error("Invalid argument " + str(args.action))

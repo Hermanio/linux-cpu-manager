@@ -2,7 +2,7 @@ import multiprocessing
 from abc import ABCMeta, abstractmethod
 
 
-class Governor(object):
+class PstateGovernor(object):
     __metaclass__ = ABCMeta
 
     def __init__(self, min_perf_pct, max_perf_pct, num_pstates, turbo_pct):
@@ -12,6 +12,7 @@ class Governor(object):
         or aggressive polling, thus we don't set these here.
         """
         self.pstate_path = "/sys/devices/system/cpu/intel_pstate/"
+        self.pstate_governor_path = "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor"  # cpu0 safe bet, applies same governor to all cores
         self.package_temperature_path = "/sys/devices/platform/coretemp.0/hwmon/hwmon2/temp1_input"
         self.package_max_temp_path = "/sys/devices/platform/coretemp.0/hwmon/hwmon2/temp1_max"
         self.package_critical_temp_path = "/sys/devices/platform/coretemp.0/hwmon/hwmon2/temp1_crit"
@@ -21,17 +22,10 @@ class Governor(object):
         self.current_min_pct = min_perf_pct
         self.current_max_pct = max_perf_pct
 
-        self.small_pct_stepping = None
-        self.big_pct_stepping = None
-
         self.min_pct_limit = None
         self.max_pct_limit = None
 
         self.no_turbo = None
-
-        self.current_temperature = None
-        self.package_max_temp = None
-        self.package_critical_temp = None
 
         self.governor_thread = None
 
@@ -41,23 +35,6 @@ class Governor(object):
     def start(self):
         """
         Method containing main loop. Gets called via multiprocess API.
-        :return:
-        """
-        pass
-
-    @abstractmethod
-    def apply_action(self, action):
-        """
-        Apply the given action.
-        :param action:
-        :return:
-        """
-        pass
-
-    @abstractmethod
-    def decide_action(self):
-        """
-        Takes into account current clock, low-normal-high and makes decision
         :return:
         """
         pass
@@ -76,6 +53,8 @@ class Governor(object):
         for stat, path in stats.items():
             with open("/sys/devices/system/cpu/intel_pstate/{:s}".format(path)) as f:
                 print("{:s}:\t{:s}".format(stat, f.read()), end='')
+
+        print(str(self.current_temperature))
         print()
 
     def run_governor(self):
@@ -135,3 +114,44 @@ class Governor(object):
         turbo_range_start_as_step_count = nonturbo_range_pct * num_pstates
         turbo_range_as_pct = min_perf_pct + (turbo_range_start_as_step_count * step_pct)
         return int(turbo_range_as_pct)
+
+    def get_action_pct(self):
+        return int((self.package_max_temp - self.current_temperature) / 2)
+
+    def apply_action(self, settings):
+        for setting, value in settings.items():
+            with open(self.pstate_path + str(setting), "w") as f:
+                print("Setting {:s} to {:d}".format(setting, int(value)))
+                f.write(str(int(value)))
+
+    def get_action(self):
+        """
+        Apply settings.
+        :param min:
+        :param stock:
+        :param max:
+        :return:
+        """
+
+        self.current_max_pct = self.current_max_pct + self.get_action_pct()
+
+        if self.current_max_pct < self.min_pct_limit:
+            self.current_max_pct = self.min_pct_limit
+
+        if self.current_max_pct > self.max_pct_limit:
+            self.current_max_pct = self.max_pct_limit
+
+        # min, max, boost
+        settings = {
+            "min_perf_pct": self.current_min_pct,
+            "max_perf_pct": self.current_max_pct,
+            "no_turbo": self.no_turbo
+        }
+
+        return settings
+
+    def set_intel_pstate_performance_bias(self, bias):
+        if bias in ("powersave", "performance"):
+            with open(self.pstate_governor_path, "w") as f:
+                print("Setting pstate governor to {:s}".format(bias))
+                f.write(bias)

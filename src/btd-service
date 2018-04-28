@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 import sys
 
-import dbus, dbus.service, dbus.exceptions
+import dbus.exceptions
 from dbus.mainloop.glib import DBusGMainLoop
 from gi.repository import GLib
 
-from controller import BetterThermalDaemon
 
 # Initialize a main loop
+from controller import BetterThermalDaemon
+
 DBusGMainLoop(set_as_default=True)
 loop = GLib.MainLoop()
 

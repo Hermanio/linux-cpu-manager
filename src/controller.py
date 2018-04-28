@@ -1,9 +1,7 @@
 import dbus.service
 
-from modes import StockGovernor, PowersaveGovernor, PerformanceGovernor
-
-# TODO set cpufreq governor too for better governor behaviour. if performance then do whatever, push it to max, otherwise push to performance. Check bios level stuff too
-from modes.PowersaveLockedGovernor import PowersaveLockedGovernor
+from modes.pstate import StockPstateGovernor, PowersavePstateGovernor, PerformancePstateGovernor, \
+    PowersaveLockedPstateGovernor
 
 
 class BetterThermalDaemon(dbus.service.Object):
@@ -12,7 +10,6 @@ class BetterThermalDaemon(dbus.service.Object):
         super().__init__(bus_name, "/ee/ounapuu/BetterThermalDaemon")
         self.current_governor = None
         self.current_governor_name = None
-
 
         """
         powersavelocked: stuck at min percentage
@@ -54,10 +51,13 @@ class BetterThermalDaemon(dbus.service.Object):
 
     def get_governor_by_name(self, name):
         governors = {
-            'stock': StockGovernor(self.min_perf_pct, self.max_perf_pct, self.num_pstates, self.turbo_pct),
-            'powersavelocked': PowersaveLockedGovernor(self.min_perf_pct, self.max_perf_pct, self.num_pstates, self.turbo_pct),
-            'powersave': PowersaveGovernor(self.min_perf_pct, self.max_perf_pct, self.num_pstates, self.turbo_pct),
-            'performance': PerformanceGovernor(self.min_perf_pct, self.max_perf_pct, self.num_pstates, self.turbo_pct),
+            'stock': StockPstateGovernor(self.min_perf_pct, self.max_perf_pct, self.num_pstates, self.turbo_pct),
+            'powersavelocked': PowersaveLockedPstateGovernor(self.min_perf_pct, self.max_perf_pct, self.num_pstates,
+                                                             self.turbo_pct),
+            'powersave': PowersavePstateGovernor(self.min_perf_pct, self.max_perf_pct, self.num_pstates,
+                                                 self.turbo_pct),
+            'performance': PerformancePstateGovernor(self.min_perf_pct, self.max_perf_pct, self.num_pstates,
+                                                     self.turbo_pct),
         }
 
         return governors[name]

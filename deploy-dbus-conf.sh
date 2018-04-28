@@ -1,3 +1,3 @@
 #!/bin/bash
 
-sudo cp ./ee.ounapuu.BetterThermalDaemon.conf /etc/dbus-1/system.d/
+sudo cp ./conf/ee.ounapuu.BetterThermalDaemon.conf /etc/dbus-1/system.d/
