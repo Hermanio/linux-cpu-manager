@@ -1,7 +1,9 @@
 import dbus.service
 
-from modes.pstate import StockPstateGovernor, PowersavePstateGovernor, PerformancePstateGovernor, \
-    PowersaveLockedPstateGovernor
+from modes.pstate.PerformanceGovernor import PerformancePstateGovernor
+from modes.pstate.PowersaveGovernor import PowersavePstateGovernor
+from modes.pstate.PowersaveLockedGovernor import PowersaveLockedPstateGovernor
+from modes.pstate.StockGovernor import StockPstateGovernor
 
 
 class BetterThermalDaemon(dbus.service.Object):

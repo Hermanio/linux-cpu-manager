@@ -5,8 +5,6 @@ import dbus.exceptions
 from dbus.mainloop.glib import DBusGMainLoop
 from gi.repository import GLib
 
-
-# Initialize a main loop
 from controller import BetterThermalDaemon
 
 DBusGMainLoop(set_as_default=True)
