@@ -35,9 +35,8 @@ class BetterThermalDaemon(dbus.service.Object):
         powersave: min to 50% of nonturbo clockspeed
         stock: min to nonturbo clockspeed
         performance: min to max
-        performance-locked: lock it at max
         """
-        self.controller_modes = ['powersavelocked', 'powersave', 'stock', 'performance', 'performanceoverdrive', 'performancecoolmode']
+        self.controller_modes = ['powersavelocked', 'powersave', 'stock', 'performance']
 
         self.min_perf_pct = None
         self.max_perf_pct = None
