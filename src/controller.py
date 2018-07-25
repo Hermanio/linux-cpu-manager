@@ -1,19 +1,19 @@
 # Copyright (C) 2018 Herman Õunapuu
 #
-# This file is part of Better Thermal Daemon.
+# This file is part of Linux CPU Manager.
 #
-# Better Thermal Daemon is free software: you can redistribute it and/or modify
+# Linux CPU Manager is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# Better Thermal Daemon is distributed in the hope that it will be useful,
+# Linux CPU Manager is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with Better Thermal Daemon.  If not, see <http://www.gnu.org/licenses/>.
+# along with Linux CPU Manager.  If not, see <http://www.gnu.org/licenses/>.
 
 import dbus.service
 
@@ -23,10 +23,10 @@ from modes.pstate.PowersaveLockedGovernor import PowersaveLockedPstateGovernor
 from modes.pstate.StockGovernor import StockPstateGovernor
 
 
-class BetterThermalDaemon(dbus.service.Object):
+class LinuxCPUManager(dbus.service.Object):
 
     def __init__(self, bus_name):
-        super().__init__(bus_name, "/ee/ounapuu/BetterThermalDaemon")
+        super().__init__(bus_name, "/ee/ounapuu/LinuxCPUManager")
         self.current_governor = None
         self.current_governor_name = None
 
@@ -45,9 +45,9 @@ class BetterThermalDaemon(dbus.service.Object):
 
         self.init_pstate_driver_info()
 
-        self.start_governor('stock')
+        self.start_governor('performance')
 
-    @dbus.service.method("ee.ounapuu.BetterThermalDaemon.setMode", in_signature='s', out_signature='s')
+    @dbus.service.method("ee.ounapuu.LinuxCPUManager.setMode", in_signature='s', out_signature='s')
     def set_mode(self, mode):
         if mode in self.controller_modes:
             if mode == self.current_governor_name:

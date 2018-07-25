@@ -1,0 +1,9 @@
+[Unit]
+Description = Linux CPU Manager service daemon
+
+[Service]
+ExecStart   = /usr/bin/linux-cpu-manager/service
+Restart     = always
+
+[Install]
+WantedBy = multi-user.target
